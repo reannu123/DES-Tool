@@ -202,7 +202,14 @@ int ExpansionDBox(){
     }
     // printf("\n");
 }
-
+int StraightDBox(){
+    printf("\nStraight D Box Output\n");
+    for(int i = 0; i < 32; i++){
+        StraightBlockOutput[i] = SBoxBlockOutput[StrDBoxTable[i]-1];
+        printf("%d",StraightBlockOutput[i]);
+    }
+    printf("\n");
+}
 int initialPermutation(char input[]){
     for(int i=0; i<64; i++){
         CipherBlocks[0][IPTable[i]-1] = (int)input[i]-48;
@@ -233,7 +240,7 @@ int roundFunction(int round){
     }
     printf("\n");
 
-    // StraightDBox();
+    StraightDBox();
     // Straight DBox Sbox output store to RRound
     // Xor to LRound
     // Swap LRound and RRound
