@@ -41,15 +41,15 @@ int CipherBlocks[2][64];
 int FPText[2][64];
 
 // For Key Generation
-int RoundKeys[16][64];
+int RoundKeys[16][48];
 
 // For Round Function
-int LRound[32];
-int RRound[32];
-int ExpDBoxOutput[48];  // Output of Expansion DBox for input of Sboxes
-int SBoxBlockOutput[32];     // Output of sbox for input of Straight Dbox
-int StraightBlockOutput[32];    // Output of Straight Dbox for input for XOring with LRound
-int RTemp[32]; // For Xoring
+int LRoundBlock[32];
+int RRoundBlock[32];
+int ExpDBoxOutputBlock[48];  // Output of Expansion DBox for input of Sboxes
+int SBoxOutputBlock[32];     // Output of sbox for input of Straight Dbox
+int StrDBoxOutputBlock[32];    // Output of Straight Dbox for input for XOring with LRoundBlock
+int RTempBlock[32]; // For Xoring
 
 
 int IPTable[] =      // Initial Permutation Table
@@ -76,7 +76,7 @@ int FPTable[] =      // Final Permutation Table
     33, 1, 41,  9, 49, 17, 57, 25
 };
 
-int ExpDBoxTable[] =
+int ExpDBoxTable[] =    // Expantion Permutation Table
 {
     32,  1,  2,  3,  4,  5,
     4,  5,  6,  7,  8,  9,
@@ -88,7 +88,7 @@ int ExpDBoxTable[] =
     28, 29, 30, 31, 32,  1
 };
 
-int StrDBoxTable[] = 
+int StrDBoxTable[] =    // Straight Permutation Table
 {
     16,  7, 20, 21,
     29, 12, 28, 17,
@@ -100,7 +100,8 @@ int StrDBoxTable[] =
     22, 11,  4, 25
 };
 
-int Sboxes[8][4][16] = {
+int Sboxes[8][4][16] =  // SBox Permutation Tables
+{
     {14,  4, 13,  1,  2, 15, 11,  8,  3, 10,  6, 12,  5,  9,  0,  7,
     0, 15,  7,  4, 14,  2, 13,  1, 10,  6, 12, 11,  9,  5,  3,  8,
     4,  1, 14,  8, 13,  6,  2, 11, 15, 12,  9,  7,  3, 10,  5,  0,
@@ -144,28 +145,28 @@ int Sboxes[8][4][16] = {
 
 };
 
-int mixerFunction(){
+int Swapper(){    // Swapping L Block and R Block
     for(int i = 0;i<32;i++){
-        RTemp[i] = RRound[i];
-        RRound[i] = LRound[i];
-        LRound[i] = RTemp[i];
+        RTempBlock[i] = RRoundBlock[i];
+        RRoundBlock[i] = LRoundBlock[i];
+        LRoundBlock[i] = RTempBlock[i];
     }
-    
+}
+
+int arrayXOR(int arrayA[], int arrayB[], int length){
+    for (int i = 0; i<length; i++){
+        arrayA[i] = (arrayA[i] ^ arrayB[i]);
+    }
 }
 
 int SBoxPermutation(int i){
-    // printf("\nSBox %d\n",i+1);
-    // for(int j=i*6; j<(i+1)*6; j++){
-    //     printf("%d",ExpDBoxOutput[j]);
-    // }
-    int row = ExpDBoxOutput[i*6]*2 + ExpDBoxOutput[i*6 + 5];
-    int column = ExpDBoxOutput[i*6 + 1]*8 + ExpDBoxOutput[i*6 + 2]*4 + ExpDBoxOutput[i*6+3]*2 + ExpDBoxOutput[i*6 + 4];
-    // printf("Row: %d\nColumn: %d\n",row,column);
+    // Get row and column decimal values from binary digits in array
+    int row = ExpDBoxOutputBlock[i*6]*2 + ExpDBoxOutputBlock[i*6 + 5];
+    int column = ExpDBoxOutputBlock[i*6 + 1]*8 + ExpDBoxOutputBlock[i*6 + 2]*4 + ExpDBoxOutputBlock[i*6+3]*2 + ExpDBoxOutputBlock[i*6 + 4];
 
+    // Get the SBox permutation value based on row and column values
     int SBoxOutput = Sboxes[i][row][column];
-    // printf("SBoxOutput: %d\n",SBoxOutput);
 
-    // int DectoBin(SBoxOutput);
     // Convert SBoxOutput to binary
     int dec = SBoxOutput;
     int array[4]={0,0,0,0};
@@ -174,82 +175,71 @@ int SBoxPermutation(int i){
         array[i] = dec % 2;
         dec = dec/2;
     }
-    for(int n = 0; n < 4; n++){
-        printf("%d",array[n]);
-    }
-    printf("\n");
 
+    // Store the 4-digit binary in a 32-element array
     for (int x = i*4; x < (i+1)*4; x++){
-        SBoxBlockOutput[x] = array[x%4];
+        SBoxOutputBlock[x] = array[x%4];
     }
-    
-    // Store back to ExpDBoxOutput
-
-
-
     
 }
+
+// Split ExpDBoxOutputBlock into 8 parts, 1 for each S-box
 int SBoxSplit(){
     for(int i=0; i < 8; i++){
         SBoxPermutation(i);
     }
 }
+
+// Expand the 32-bit RRound into 48-bits using ExpDBoxtable
 int ExpansionDBox(){
-    printf("\nExpansion D Box Output\n");
     for(int i = 0; i < 48; i++){
-        ExpDBoxOutput[i] = RRound[ExpDBoxTable[i]-1];
-        // printf("%d",ExpDBoxOutput[i]);
+        ExpDBoxOutputBlock[i] = RRoundBlock[ExpDBoxTable[i]-1];
     }
-    // printf("\n");
 }
+
+// Straight permutation from SBoxOutputBlock using StrDBoxTable
 int StraightDBox(){
-    printf("\nStraight D Box Output\n");
     for(int i = 0; i < 32; i++){
-        StraightBlockOutput[i] = SBoxBlockOutput[StrDBoxTable[i]-1];
-        printf("%d",StraightBlockOutput[i]);
+        StrDBoxOutputBlock[i] = SBoxOutputBlock[StrDBoxTable[i]-1];
     }
-    printf("\n");
 }
+
+// Initial permutation of 64-bits
 int initialPermutation(char input[]){
     for(int i=0; i<64; i++){
         CipherBlocks[0][IPTable[i]-1] = (int)input[i]-48;
     }
     for(int j=0; j<32;j++){
-        RRound[j]=CipherBlocks[0][j];
+        RRoundBlock[j]=CipherBlocks[0][j];
     }
 }
 
+// Final permutation of 64-bits
 int finalPermutation(){
     for(int i=0; i<64; i++){
         FPText[0][FPTable[i]-1] = CipherBlocks[0][i];
     }
 }
+
+// Function calls in a round
 int roundFunction(int round){
     ExpansionDBox();    // Expand R
-    // XOR R to Key for round
-        // --! TODO
     
-    SBoxSplit();        // Split into 8
-        // DONE Each 6 digits in SBox Permutation
-        // DONE Convert decimal to binary
-        // DONE Store each bit to Temp SBOx Output
-        // DONE Store each temp sbox output to RRound
-    printf("\nSboxOutput:\n");
-    for(int i =0; i<32; i++){
-        printf("%d", SBoxBlockOutput[i]);
-    }
-    printf("\n");
+    //arrayXOR(ExpDBoxOutputBlock, RoundKeys(round), 48);     // Key XORing
+    
+    SBoxSplit();        // Split XORed ExpDBoxOutputBlock into 8 SBoxes
 
-    StraightDBox();
-    // Straight DBox Sbox output store to RRound
-    // Xor to LRound
-    // Swap LRound and RRound
+    StraightDBox();     // Straight Permutation after SBox Permutation
+    
+    arrayXOR(LRoundBlock, StrDBoxOutputBlock, 32);          // XOR StrDBox Output with LRoundBlock
+
+    Swapper();
+    
 }
+
+// 
 char* des(char input[], char key[]){
     initialPermutation(input);
-    for(int j=0; j<32; j++){
-        printf("%d",RRound[j]);
-    }
     for(int i=0; i<1; i++){
         roundFunction(i);
     }
@@ -263,6 +253,17 @@ int main(){
     //"1011101100010011111000110111000101100011000101010111010011111101";
     char key[] = "0001001100110100010101110111100110011011101111001101111111110001";
     printf("%s\n", input);
+    
+    // int array1[] = {0,0,0,0,1};
+    // int array2[] = {1,0,0,1,1};
+    // arrayXOR(array1, array2, 5);
+
+    // printf("array Xor Test: \n");
+    // for (int i=0; i<5;i++){
+    //     printf("%d", array1[i]);
+    // }
+    // printf("\n");
+
     des(input,key);
 
     // for (int i = 0; i < 64; i++){
