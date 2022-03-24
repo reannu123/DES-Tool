@@ -46,7 +46,7 @@ int RoundKeys[16][64];
 // For Round Function
 int LRound[32];
 int RRound[32];
-int ExpBlock[48];
+int ExpDBoxOutput[48];
 int StraightBlock[32];
 int RTemp[32]; // For Xoring
 
@@ -87,7 +87,7 @@ int ExpDBoxTable[] =
     28, 29, 30, 31, 32,  1
 };
 
-int Sboxes[3][4][16] = {
+int Sboxes[8][4][16] = {
     {14,  4, 13,  1,  2, 15, 11,  8,  3, 10,  6, 12,  5,  9,  0,  7,
     0, 15,  7,  4, 14,  2, 13,  1, 10,  6, 12, 11,  9,  5,  3,  8,
     4,  1, 14,  8, 13,  6,  2, 11, 15, 12,  9,  7,  3, 10,  5,  0,
@@ -131,23 +131,42 @@ int Sboxes[3][4][16] = {
 
 };
 
-int SBoxPermutation(int SBoxInput[], int SBoxNum){
-    int row = SBoxInput[0]*2 + SBoxInput[5];
-    int column = SBoxInput[1]*8 + SBoxInput[2]*4 + SBoxInput[3]*2 + SBoxInput[4];
+int SBoxPermutation(int i){
+    printf("\nSBox %d\n",i+1);
+    for(int j=i*6; j<(i+1)*6; j++){
+        printf("%d",ExpDBoxOutput[j]);
+    }
+    printf("\n");
+    int row = ExpDBoxOutput[i*6]*2 + ExpDBoxOutput[i*6 + 5];
+    int column = ExpDBoxOutput[i*6 + 1]*8 + ExpDBoxOutput[i*6 + 2]*4 + ExpDBoxOutput[i*6+3]*2 + ExpDBoxOutput[i*6 + 4];
+    printf("Row: %d\nColumn: %d\n",row,column);
+
+    int SBoxOutput = Sboxes[i][row][column];
+    printf("SBoxOutput: %d\n",SBoxOutput);
 
 
     
 }
-
-int ExpansionDBox(){
-    for(int i = 0; i < 48; i++){
-        ExpBlock[i] = RRound[ExpDBoxTable[i]-1];
+int SBoxSplit(){
+    for(int i=0; i < 8; i++){
+        SBoxPermutation(i);
     }
+}
+int ExpansionDBox(){
+    printf("\nExpansionD Box Output\n");
+    for(int i = 0; i < 48; i++){
+        ExpDBoxOutput[i] = RRound[ExpDBoxTable[i]-1];
+        printf("%d",ExpDBoxOutput[i]);
+    }
+    printf("\n");
 }
 
 int initialPermutation(char input[]){
     for(int i=0; i<64; i++){
         CipherBlocks[0][IPTable[i]-1] = (int)input[i]-48;
+    }
+    for(int j=0; j<32;j++){
+        RRound[j]=CipherBlocks[0][j];
     }
 }
 
@@ -156,11 +175,29 @@ int finalPermutation(){
         FPText[0][FPTable[i]-1] = CipherBlocks[0][i];
     }
 }
-
+int roundFunction(int round){
+    // Expand R
+    ExpansionDBox();
+    // XOR R to Key for round
+        // --! TODO
+    // Split into 8
+    SBoxSplit();
+        // DONE Each 6 digits in SBox Permutation
+    
+    
+    // Convert decimal to binary
+    // Store each bit to Temp SBOx Output
+    // Store each temp sbox output to RRound
+    // Xor to LRound
+    // Swap LRound and RRound
+}
 char* des(char input[], char key[]){
     initialPermutation(input);
-    for(int i=0; i<16; i++){
-        // round( ,)
+    for(int j=0; j<32; j++){
+        printf("%d",RRound[j]);
+    }
+    for(int i=0; i<1; i++){
+        roundFunction(i);
     }
     finalPermutation();
 
@@ -184,5 +221,5 @@ int main(){
     // }
     //printf("\n");
     //printf("Cipher Text: %s\n", ciphertext);
-    printf("S-box: %d\n",Sboxes[2][3][15]);
+    // printf("S-box: %d\n",Sboxes[5][3][15]);
 }
