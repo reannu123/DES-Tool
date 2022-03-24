@@ -144,6 +144,20 @@ int SBoxPermutation(int i){
     int SBoxOutput = Sboxes[i][row][column];
     printf("SBoxOutput: %d\n",SBoxOutput);
 
+    // Convert SBoxOutput to binary
+    int dec = SBoxOutput;
+    int array[4]={0,0,0,0};
+
+    for(int i = 3; dec>0; i--){
+        array[i] = dec % 2;
+        dec = dec/2;
+    }
+    printf("Binary is: ");
+    for(int n = 0; n < 4; n++){
+        printf("%d",array[n]);
+    }
+    printf("\n");
+
 
     
 }
@@ -184,7 +198,7 @@ int roundFunction(int round){
     SBoxSplit();
         // DONE Each 6 digits in SBox Permutation
     
-    
+
     // Convert decimal to binary
     // Store each bit to Temp SBOx Output
     // Store each temp sbox output to RRound
