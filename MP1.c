@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 
-
+int CharBits[160];
+int Blocks = 1;
 int CipherBlocks[3][64];
 int FPText[3][64];
 int Key64[64];      // After checking Validity of String Key
@@ -271,15 +272,7 @@ int shiftLeft(int RoundKeyBlock[], int numOfShifts){
         RoundKeyBlock[27] = temp;
     }
 }
-int DectoBin(){
-    int dec;
-    int array[8]={0,0,0,0,0,0,0,0};
 
-    for(int i = 7; dec>0; i--){
-        array[i] = dec % 2;
-        dec = dec/2;
-    }
-}
 
 int KeyParityDrop(){
     
@@ -327,36 +320,60 @@ int KeyGen(){
     
 }
 
+int *DectoBin(int dec){
+    static int array[8]={0,0,0,0,0,0,0,0};
+
+    for(int i = 7; dec>0; i--){
+        array[i] = dec % 2;
+        dec = dec/2;
+    }
+    return array;
+}
+
+void StringConvertToBinary(char input[]){
+    if(strlen(input)>8){
+        Blocks = 2;
+    }
+    else if(strlen(input)>16){
+        Blocks = 3;
+    }
+    for(int i=0; i<20; i++){
+        int *BinArray = DectoBin(input[i]); 
+        for(int j=0; j<8; j++){
+            CharBits[i*8 + j] = BinArray[j];
+        }
+    }
+    
+}
+
 int main(){
-    //char input[] = "1110110111001010011011000111010000100010100101111000001001100001";
-    //"1011101100010011111000110111000101100011000101010111010011111101";
-    char key[] = "0001001100110100010101110111100110011011101111001101111111110001";
+    // char input[] = "1110110111001010011011000111010000100010100101111000001001100001";
+    // "1011101100010011111000110111000101100011000101010111010011111101";
+    // char key[] = "0001001100110100010101110111100110011011101111001101111111110001";
 
     char input[21];
-    fgets(input, sizeof(input), stdin);  // read string  
-    printf("String = %s",input);
-    return 0;
+    char key[64];
 
+    fgets(input, sizeof(input), stdin);  // read string  
+    fgets(key, sizeof(key), stdin);  // read string
+    StringConvertToBinary(input);
+    for(int i=0; i<20; i++){
+        printf("\n");
+        for(int j=0; j<8; j++){
+            printf("%d", CharBits[i*8+j]);
+        }
+    }
+    return 0;
+    
     if(KeyCheck(key) == 0){
         KeyGen();
 
     // TODO:
-
-    // fget PROCESSING
-        // Split string into 2 lines
-        // Plaintext = 1st Line
-        // Key = 2nd Line
-
     // PLAINTEXT PROCESSING
-        // Pad input to be 8, 16, or 24 characters
-        // Convert each character to ASCII decimal
-        // Convert Decimal to 8-bit binary
-        // Store each bit in array input
         // Split into 64-bit blocks for DES Input
         // Call DES for every block
-            
-            
-    
+        StringConvertToBinary(input);
+        //SplitInput();
         des(input);
     }
     else{
