@@ -298,7 +298,7 @@ int KeySplit(){
     }
 }
 
-int KeyCompress(){
+int KeyCompress(int round){
     int newKey56[56];
     for(int j = 0; j<56; j++){
         if(j<28){
@@ -310,20 +310,19 @@ int KeyCompress(){
     }
 
     for(int i=0; i<48; i++){
-        //Key48[i] = 
+        RoundKeys[round][k] = newKey56[KeyCompressionTable[i]];
     }
-    printf("\n");
 }
 int KeyGen(){
     KeyParityDrop();        // Parity Drop
     KeySplit();
     
-    KeyCompress();
-    // for(int i = 0; i<16; i++){
-    //     shiftLeft(KeyL, KeyShiftTable[i]);
-    //     shiftLeft(KeyR, KeyShiftTable[i]);
-
-    // }
+    
+    for(int i = 0; i<16; i++){
+        shiftLeft(KeyL, KeyShiftTable[i]);
+        shiftLeft(KeyR, KeyShiftTable[i]);
+        KeyCompress(i);
+    }
     
 }
 
