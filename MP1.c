@@ -310,7 +310,7 @@ int KeyCompress(int round){
     }
 
     for(int i=0; i<48; i++){
-        RoundKeys[round][k] = newKey56[KeyCompressionTable[i]];
+        RoundKeys[round][i] = newKey56[KeyCompressionTable[i]];
     }
 }
 int KeyGen(){
