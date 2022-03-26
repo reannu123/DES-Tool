@@ -237,9 +237,9 @@ int roundFunction(int round){
 }
 
 // 
-void des(char input[], char key[]){
+void des(char input[]){
     initialPermutation(input);
-    for(int i=0; i<1; i++){
+    for(int i=0; i<16; i++){
         roundFunction(i);
     }
     finalPermutation();
@@ -310,7 +310,7 @@ int KeyCompress(int round){
     }
 
     for(int i=0; i<48; i++){
-        RoundKeys[round][i] = newKey56[KeyCompressionTable[i]];
+        RoundKeys[round][i] = newKey56[KeyCompressionTable[i]-1];
     }
 }
 int KeyGen(){
@@ -323,22 +323,22 @@ int KeyGen(){
         shiftLeft(KeyR, KeyShiftTable[i]);
         KeyCompress(i);
     }
+    printf("\n");
     
 }
 
 int main(){
-    char input[] = "1110110111001010011011000111010000100010100101111000001001100001";
+    //char input[] = "1110110111001010011011000111010000100010100101111000001001100001";
     //"1011101100010011111000110111000101100011000101010111010011111101";
     char key[] = "0001001100110100010101110111100110011011101111001101111111110001";
-    printf("%s\n", key);
-    if(KeyCheck(key) == 0){
-        printf("The key is valid\n");
-    }
-    else{
-        printf("The key is invalid\n");
-    }
 
-    KeyGen();
+    char input[21];
+    fgets(input, sizeof(input), stdin);  // read string  
+    printf("String = %s",input);
+    return 0;
+
+    if(KeyCheck(key) == 0){
+        KeyGen();
 
     // TODO:
 
@@ -354,15 +354,16 @@ int main(){
         // Store each bit in array input
         // Split into 64-bit blocks for DES Input
         // Call DES for every block
+            
+            
     
-    // KEY PROCESSING
-        // Key Check
+        des(input);
+    }
+    else{
+        printf("The key is invalid\n");
+    }
 
-        // Key Generation (Generate 16 round keys)
-            
-            
     
-    // des(input,key);
 
 
 }
