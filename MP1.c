@@ -2,45 +2,17 @@
 #include <string.h>
 
 
-// split string into 2 lines
-// Plaintext = first line
-// Key = 2nd line
+int CipherBlocks[3][64];
+int FPText[3][64];
+int Key64[64];      // After checking Validity of String Key
+int Key56[56];      // after removign Parity bit
+// Round Key gen
+int KeyL[28];
+int KeyR[28];
 
-// PLAINTEXT PROCESSING
-    // String to binary
-    // Split plaintext binary to 64 bit blocks Block 1 and 2 if more than 8 characters
+int Key48[48]; // To be stored to RoudnKeys
 
-// KEY PROCESSING
-    // Key Check
-        // Split into 8 character arrays
-        // change each character into integer
-        // add all into a variable
-        // if even, return 1
-        // if odd, return 0
-
-    // Key Generation (Generate 16 round keys)
-        // Parity Drop
-        // Compression
-        // Shift Table 
-
-// DES (Block 1 and 2)
-    // DONE Initial Permutation
-    //Round Function
-        // Binary split into 32 bits R and L
-        // R to DES Function
-            // Expansion D-box
-            // XOR with Round Key
-            // Split to S-boxes
-            // Straight Permutation D-box
-        // Xor with L, store to R-temp
-        // R stored to L, R-temp stored to R
-        // Next rounds
-    // DONE Final Permutation
-
-int CipherBlocks[2][64];
-int FPText[2][64];
-
-// For Key Generation
+// For 
 int RoundKeys[16][48];
 
 // For Round Function
@@ -145,6 +117,33 @@ int Sboxes[8][4][16] =  // SBox Permutation Tables
 
 };
 
+int KeyParityDropTable[] =                                                 // Parity Drop Table 
+{
+    57, 49, 41, 33, 25, 17,  9,
+    1, 58, 50, 42, 34, 26, 18,
+    10,  2, 59, 51, 43, 35, 27,
+    19, 11,  3, 60, 52, 44, 36,
+    63, 55, 47, 39, 31, 23, 15,
+    7, 62, 54, 46, 38, 30, 22,
+    14,  6, 61, 53, 45, 37, 29,
+    21, 13,  5, 28, 20, 12,  4
+};
+
+int KeyCompressionTable[] =                                                 // Compression D-box Table
+{
+    14, 17, 11, 24,  1,  5,
+    3, 28, 15,  6, 21, 10,
+    23, 19, 12,  4, 26,  8,
+    16,  7, 27, 20, 13,  2,
+    41, 52, 31, 37, 47, 55,
+    30, 40, 51, 45, 33, 48,
+    44, 49, 39, 56, 34, 53,
+    46, 42, 50, 36, 29, 32
+};
+
+int KeyShiftTable[] = { 1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1 };  // Shift Table for Key Gen
+
+
 int Swapper(){    // Swapping L Block and R Block
     for(int i = 0;i<32;i++){
         RTempBlock[i] = RRoundBlock[i];
@@ -225,7 +224,7 @@ int finalPermutation(){
 int roundFunction(int round){
     ExpansionDBox();    // Expand R
     
-    //arrayXOR(ExpDBoxOutputBlock, RoundKeys(round), 48);     // Key XORing
+    arrayXOR(ExpDBoxOutputBlock, RoundKeys[round], 48);     // Key XORing
     
     SBoxSplit();        // Split XORed ExpDBoxOutputBlock into 8 SBoxes
 
@@ -238,43 +237,133 @@ int roundFunction(int round){
 }
 
 // 
-char* des(char input[], char key[]){
+void des(char input[], char key[]){
     initialPermutation(input);
     for(int i=0; i<1; i++){
         roundFunction(i);
     }
     finalPermutation();
+}
 
-    return "Hello";
+int KeyCheck(char key[]){
+    int sum=0;
+    if(strlen(key)!=64){
+        return -1;
+    }
+    for(int i=0; i<64; i++){
+        sum += key[i]-48;
+        Key64[i] = (int)key[i]-48;
+        if((i+1)%8 == 0){
+            if(sum%2==0){
+                return -1;
+            }
+            sum = 0;
+        }
+    }
+    return 0;
+}
+int shiftLeft(int RoundKeyBlock[], int numOfShifts){
+    for(int i = 0; i< numOfShifts; i++){
+        int temp = RoundKeyBlock[0];
+        for(int j = 1; j < 28; j++){
+            RoundKeyBlock[j-1] = RoundKeyBlock[j];
+        }
+        RoundKeyBlock[27] = temp;
+    }
+}
+int DectoBin(){
+    int dec;
+    int array[8]={0,0,0,0,0,0,0,0};
+
+    for(int i = 7; dec>0; i--){
+        array[i] = dec % 2;
+        dec = dec/2;
+    }
+}
+
+int KeyParityDrop(){
+    
+    printf("\n");
+    for(int i = 0; i < 56; i++){
+        Key56[i] = Key64[KeyParityDropTable[i]-1];
+        printf("%d",Key56[i]);
+    }
+    printf("\n");
+}
+
+int KeySplit(){
+    for(int i=0; i<28; i++){
+        KeyL[i] = Key56[i];
+        KeyR[i] = Key56[i+28];
+    }
+}
+
+int KeyCompress(){
+    int newKey56[56];
+    for(int j = 0; j<56; j++){
+        if(j<28){
+            newKey56[j] = KeyL[j];
+        }
+        else{
+            newKey56[j] = KeyR[j-28];
+        }
+    }
+
+    for(int i=0; i<48; i++){
+        //Key48[i] = 
+    }
+    printf("\n");
+}
+int KeyGen(){
+    KeyParityDrop();        // Parity Drop
+    KeySplit();
+    
+    KeyCompress();
+    // for(int i = 0; i<16; i++){
+    //     shiftLeft(KeyL, KeyShiftTable[i]);
+    //     shiftLeft(KeyR, KeyShiftTable[i]);
+
+    // }
+    
 }
 
 int main(){
     char input[] = "1110110111001010011011000111010000100010100101111000001001100001";
     //"1011101100010011111000110111000101100011000101010111010011111101";
     char key[] = "0001001100110100010101110111100110011011101111001101111111110001";
-    printf("%s\n", input);
+    printf("%s\n", key);
+    if(KeyCheck(key) == 0){
+        printf("The key is valid\n");
+    }
+    else{
+        printf("The key is invalid\n");
+    }
+
+    KeyGen();
+
+    // TODO:
+
+    // fget PROCESSING
+        // Split string into 2 lines
+        // Plaintext = 1st Line
+        // Key = 2nd Line
+
+    // PLAINTEXT PROCESSING
+        // Pad input to be 8, 16, or 24 characters
+        // Convert each character to ASCII decimal
+        // Convert Decimal to 8-bit binary
+        // Store each bit in array input
+        // Split into 64-bit blocks for DES Input
+        // Call DES for every block
     
-    // int array1[] = {0,0,0,0,1};
-    // int array2[] = {1,0,0,1,1};
-    // arrayXOR(array1, array2, 5);
+    // KEY PROCESSING
+        // Key Check
 
-    // printf("array Xor Test: \n");
-    // for (int i=0; i<5;i++){
-    //     printf("%d", array1[i]);
-    // }
-    // printf("\n");
-
-    des(input,key);
-
-    // for (int i = 0; i < 64; i++){
-    //     printf("%d",CipherBlocks[0][i]);
-    // }
-    // printf("\n");
+        // Key Generation (Generate 16 round keys)
+            
+            
     
-    // for (int i = 0; i < 64; i++){
-    //     printf("%d",FPText[0][i]);
-    // }
-    //printf("\n");
-    //printf("Cipher Text: %s\n", ciphertext);
-    // printf("S-box: %d\n",Sboxes[5][3][15]);
+    // des(input,key);
+
+
 }
