@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <string.h>
 
-int CharBits[160];
+int CharBits[192];
 int Blocks = 1;
+int oldCipherBlocks[3][64];
 int CipherBlocks[3][64];
+int oldFPText[3][64];
 int FPText[3][64];
 int Key64[64];      // After checking Validity of String Key
 int Key56[56];      // after removign Parity bit
@@ -23,9 +25,9 @@ int ExpDBoxOutputBlock[48];  // Output of Expansion DBox for input of Sboxes
 int SBoxOutputBlock[32];     // Output of sbox for input of Straight Dbox
 int StrDBoxOutputBlock[32];    // Output of Straight Dbox for input for XOring with LRoundBlock
 int RTempBlock[32]; // For Xoring
+int finalCharBits[192];
 
-
-int IPTable[] =      // Initial Permutation Table
+static int IPTable[64] =      // Initial Permutation Table
 {   
     58, 50, 42, 34, 26, 18, 10, 2,
     60, 52, 44, 36, 28, 20, 12, 4,
@@ -37,7 +39,7 @@ int IPTable[] =      // Initial Permutation Table
     63, 55, 47, 39, 31, 23, 15, 7   
 };
 
-int FPTable[] =      // Final Permutation Table
+static int FPTable[64] =      // Final Permutation Table
 {   
     40, 8, 48, 16, 56, 24, 64, 32,
     39, 7, 47, 15, 55, 23, 63, 31,
@@ -49,7 +51,7 @@ int FPTable[] =      // Final Permutation Table
     33, 1, 41,  9, 49, 17, 57, 25
 };
 
-int ExpDBoxTable[] =    // Expantion Permutation Table
+static int ExpDBoxTable[] =    // Expantion Permutation Table
 {
     32,  1,  2,  3,  4,  5,
     4,  5,  6,  7,  8,  9,
@@ -61,7 +63,7 @@ int ExpDBoxTable[] =    // Expantion Permutation Table
     28, 29, 30, 31, 32,  1
 };
 
-int StrDBoxTable[] =    // Straight Permutation Table
+static int StrDBoxTable[] =    // Straight Permutation Table
 {
     16,  7, 20, 21,
     29, 12, 28, 17,
@@ -73,7 +75,7 @@ int StrDBoxTable[] =    // Straight Permutation Table
     22, 11,  4, 25
 };
 
-int Sboxes[8][4][16] =  // SBox Permutation Tables
+static int Sboxes[8][4][16] =  // SBox Permutation Tables
 {
     {14,  4, 13,  1,  2, 15, 11,  8,  3, 10,  6, 12,  5,  9,  0,  7,
     0, 15,  7,  4, 14,  2, 13,  1, 10,  6, 12, 11,  9,  5,  3,  8,
@@ -118,7 +120,7 @@ int Sboxes[8][4][16] =  // SBox Permutation Tables
 
 };
 
-int KeyParityDropTable[] =                                                 // Parity Drop Table 
+static int KeyParityDropTable[] =                                                 // Parity Drop Table 
 {
     57, 49, 41, 33, 25, 17,  9,
     1, 58, 50, 42, 34, 26, 18,
@@ -130,7 +132,7 @@ int KeyParityDropTable[] =                                                 // Pa
     21, 13,  5, 28, 20, 12,  4
 };
 
-int KeyCompressionTable[] =                                                 // Compression D-box Table
+static int KeyCompressionTable[] =                                                 // Compression D-box Table
 {
     14, 17, 11, 24,  1,  5,
     3, 28, 15,  6, 21, 10,
@@ -142,7 +144,7 @@ int KeyCompressionTable[] =                                                 // C
     46, 42, 50, 36, 29, 32
 };
 
-int KeyShiftTable[] = { 1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1 };  // Shift Table for Key Gen
+static int KeyShiftTable[] = { 1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1 };  // Shift Table for Key Gen
 
 
 int Swapper(){    // Swapping L Block and R Block
@@ -205,19 +207,20 @@ int StraightDBox(){
 }
 
 // Initial permutation of 64-bits
-int initialPermutation(char input[]){
+int initialPermutation(int input[], int block){
     for(int i=0; i<64; i++){
-        CipherBlocks[0][IPTable[i]-1] = (int)input[i]-48;
+        CipherBlocks[block][i] = input[IPTable[i]-1];
     }
     for(int j=0; j<32;j++){
-        RRoundBlock[j]=CipherBlocks[0][j];
+        RRoundBlock[j]=CipherBlocks[block][j+32];
+        LRoundBlock[j]=CipherBlocks[block][j];
     }
 }
 
 // Final permutation of 64-bits
-int finalPermutation(){
+int finalPermutation(int block){
     for(int i=0; i<64; i++){
-        FPText[0][FPTable[i]-1] = CipherBlocks[0][i];
+        FPText[block][i] = oldFPText[block][FPTable[i]-1];
     }
 }
 
@@ -232,18 +235,23 @@ int roundFunction(int round){
     StraightDBox();     // Straight Permutation after SBox Permutation
     
     arrayXOR(LRoundBlock, StrDBoxOutputBlock, 32);          // XOR StrDBox Output with LRoundBlock
-
-    Swapper();
-    
+    if(round!=15){
+        Swapper();
+    }
 }
 
-// 
-void des(char input[]){
-    initialPermutation(input);
+
+void des(int input[], int block){
+    initialPermutation(input, block);
     for(int i=0; i<16; i++){
         roundFunction(i);
     }
-    finalPermutation();
+    for(int j=0; j<32; j++){                    // Combine L and R to FPText
+        oldFPText[block][j]=LRoundBlock[j];
+        oldFPText[block][j+32]=RRoundBlock[j];
+    }
+
+    finalPermutation(block);                    // Permute to final permutation
 }
 
 int KeyCheck(char key[]){
@@ -275,13 +283,9 @@ int shiftLeft(int RoundKeyBlock[], int numOfShifts){
 
 
 int KeyParityDrop(){
-    
-    printf("\n");
     for(int i = 0; i < 56; i++){
         Key56[i] = Key64[KeyParityDropTable[i]-1];
-        printf("%d",Key56[i]);
     }
-    printf("\n");
 }
 
 int KeySplit(){
@@ -316,13 +320,14 @@ int KeyGen(){
         shiftLeft(KeyR, KeyShiftTable[i]);
         KeyCompress(i);
     }
-    printf("\n");
     
 }
 
 int *DectoBin(int dec){
     static int array[8]={0,0,0,0,0,0,0,0};
-
+    for(int j=0; j<8; j++){
+        array[j]=0;
+    }
     for(int i = 7; dec>0; i--){
         array[i] = dec % 2;
         dec = dec/2;
@@ -331,14 +336,14 @@ int *DectoBin(int dec){
 }
 
 void StringConvertToBinary(char input[]){
-    if(strlen(input)>8){
+    if(strlen(input)>8 && strlen(input)<16){
         Blocks = 2;
     }
     else if(strlen(input)>16){
         Blocks = 3;
     }
-    for(int i=0; i<20; i++){
-        int *BinArray = DectoBin(input[i]); 
+    for(int i=0; i<strlen(input); i++){
+        int *BinArray = DectoBin((int)input[i]); 
         for(int j=0; j<8; j++){
             CharBits[i*8 + j] = BinArray[j];
         }
@@ -347,40 +352,44 @@ void StringConvertToBinary(char input[]){
 }
 
 int main(){
-    // char input[] = "1110110111001010011011000111010000100010100101111000001001100001";
-    // "1011101100010011111000110111000101100011000101010111010011111101";
-    // char key[] = "0001001100110100010101110111100110011011101111001101111111110001";
-
     char input[21];
-    char key[64];
-
-    fgets(input, sizeof(input), stdin);  // read string  
-    fgets(key, sizeof(key), stdin);  // read string
-    StringConvertToBinary(input);
-    for(int i=0; i<20; i++){
-        printf("\n");
-        for(int j=0; j<8; j++){
-            printf("%d", CharBits[i*8+j]);
+    char key[65];
+    for(int a=0; a<160; a++){   // Initialize CharBits to all be 0
+        if(a<160){
+            CharBits[a] = 0;
         }
     }
-    return 0;
-    
-    if(KeyCheck(key) == 0){
+
+    fgets(input, sizeof(input), stdin);     // read Plaintext  
+    input[strcspn(input, "\n")] = 0;
+    fgets(key, sizeof(key), stdin);         // read Key
+    input[strcspn(input, "\n")] = 0;
+    if(KeyCheck(key) == 0){                 // Check Key validity
         KeyGen();
 
     // TODO:
     // PLAINTEXT PROCESSING
-        // Split into 64-bit blocks for DES Input
-        // Call DES for every block
-        StringConvertToBinary(input);
-        //SplitInput();
-        des(input);
+        StringConvertToBinary(input);               // Convert 
+        for(int i=0; i<64; i++){                    // Split into 64-bit blocks for DES Input
+            oldCipherBlocks[0][i] = CharBits[i];
+            oldCipherBlocks[1][i] = CharBits[i+64];
+            oldCipherBlocks[2][i] = CharBits[i+128];
+        }
+        for(int j=0; j<Blocks; j++){
+            des(oldCipherBlocks[j],j);
+            for(int n=0; n<64; n++ ){
+                finalCharBits[n+j*64]=FPText[j][n];
+            }
+        }
     }
     else{
-        printf("The key is invalid\n");
+        printf("invalid key");
+        return 0;
     }
-
-    
-
-
+    for(int z=0; z<192; z++){
+        if(z<(Blocks)*64){
+            printf("%d",finalCharBits[z]);
+        }
+    }
+    printf("\n");
 }
