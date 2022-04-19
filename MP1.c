@@ -77,45 +77,45 @@ static int StrDBoxTable[] =    // Straight Permutation Table
 
 static int Sboxes[8][4][16] =  // SBox Permutation Tables
 {
-    {14,  4, 13,  1,  2, 15, 11,  8,  3, 10,  6, 12,  5,  9,  0,  7,
-    0, 15,  7,  4, 14,  2, 13,  1, 10,  6, 12, 11,  9,  5,  3,  8,
-    4,  1, 14,  8, 13,  6,  2, 11, 15, 12,  9,  7,  3, 10,  5,  0,
-    15, 12,  8,  2,  4,  9,  1,  7,  5, 11,  3, 14, 10,  0,  6, 13},    //SBox 1
+    {{14,  4, 13,  1,  2, 15, 11,  8,  3, 10,  6, 12,  5,  9,  0,  7},
+    {0, 15,  7,  4, 14,  2, 13,  1, 10,  6, 12, 11,  9,  5,  3,  8},
+    {4,  1, 14,  8, 13,  6,  2, 11, 15, 12,  9,  7,  3, 10,  5,  0},
+    {15, 12,  8,  2,  4,  9,  1,  7,  5, 11,  3, 14, 10,  0,  6, 13}},    //SBox 1
 
-    {15,  1,  8, 14,  6, 11,  3,  4,  9,  7,  2, 13, 12,  0,  5, 10,
-    3, 13,  4,  7, 15,  2,  8, 14, 12,  0,  1, 10,  6,  9, 11,  5,
-    0, 14,  7, 11, 10,  4, 13,  1,  5,  8, 12,  6,  9,  3,  2, 15,
-    13,  8, 10,  1,  3, 15,  4,  2, 11,  6,  7, 12,  0,  5, 14,  9},    //SBox 2
+    {{15,  1,  8, 14,  6, 11,  3,  4,  9,  7,  2, 13, 12,  0,  5, 10},
+    {3, 13,  4,  7, 15,  2,  8, 14, 12,  0,  1, 10,  6,  9, 11,  5},
+    {0, 14,  7, 11, 10,  4, 13,  1,  5,  8, 12,  6,  9,  3,  2, 15},
+    {13,  8, 10,  1,  3, 15,  4,  2, 11,  6,  7, 12,  0,  5, 14,  9}},    //SBox 2
 
-    {10,  0,  9, 14,  6,  3, 15,  5,  1, 13, 12,  7, 11,  4,  2,  8,
-    13,  7,  0,  9,  3,  4,  6, 10,  2,  8,  5, 14, 12, 11, 15,  1,
-    13,  6,  4,  9,  8, 15,  3,  0, 11,  1,  2, 12,  5, 10, 14,  7,
-    1, 10, 13,  0,  6,  9,  8,  7,  4, 15, 14,  3, 11,  5,  2, 12},     //SBox 3
+    {{10,  0,  9, 14,  6,  3, 15,  5,  1, 13, 12,  7, 11,  4,  2,  8},
+    {13,  7,  0,  9,  3,  4,  6, 10,  2,  8,  5, 14, 12, 11, 15,  1},
+    {13,  6,  4,  9,  8, 15,  3,  0, 11,  1,  2, 12,  5, 10, 14,  7},
+    {1, 10, 13,  0,  6,  9,  8,  7,  4, 15, 14,  3, 11,  5,  2, 12}},     //SBox 3
 
-    {7, 13, 14,  3,  0,  6,  9, 10,  1,  2,  8,  5, 11, 12,  4, 15,
-    13,  8, 11,  5,  6, 15,  0,  3,  4,  7,  2, 12,  1, 10, 14,  9,
-    10,  6,  9,  0, 12, 11,  7, 13, 15,  1,  3, 14,  5,  2,  8,  4,
-    3, 15,  0,  6, 10,  1, 13,  8,  9,  4,  5, 11, 12,  7,  2, 14},     //SBox 4
+    {{7, 13, 14,  3,  0,  6,  9, 10,  1,  2,  8,  5, 11, 12,  4, 15},
+    {13,  8, 11,  5,  6, 15,  0,  3,  4,  7,  2, 12,  1, 10, 14,  9},
+    {10,  6,  9,  0, 12, 11,  7, 13, 15,  1,  3, 14,  5,  2,  8,  4},
+    {3, 15,  0,  6, 10,  1, 13,  8,  9,  4,  5, 11, 12,  7,  2, 14}},     //SBox 4
 
-    {2, 12,  4,  1,  7, 10, 11,  6,  8,  5,  3, 15, 13,  0, 14,  9,
-    14, 11,  2, 12,  4,  7, 13,  1,  5,  0, 15, 10,  3,  9,  8,  6,
-    4,  2,  1, 11, 10, 13,  7,  8, 15,  9, 12,  5,  6,  3,  0, 14,
-    11,  8, 12,  7,  1, 14,  2, 13,  6, 15,  0,  9, 10,  4,  5,  3},    //SBox 5
+    {{2, 12,  4,  1,  7, 10, 11,  6,  8,  5,  3, 15, 13,  0, 14,  9},
+    {14, 11,  2, 12,  4,  7, 13,  1,  5,  0, 15, 10,  3,  9,  8,  6},
+    {4,  2,  1, 11, 10, 13,  7,  8, 15,  9, 12,  5,  6,  3,  0, 14},
+    {11,  8, 12,  7,  1, 14,  2, 13,  6, 15,  0,  9, 10,  4,  5,  3}},    //SBox 5
 
-    {12,  1, 10, 15,  9,  2,  6,  8,  0, 13,  3,  4, 14,  7,  5, 11,
-    10, 15,  4,  2,  7, 12,  9,  5,  6,  1, 13, 14,  0, 11,  3,  8,
-    9, 14, 15,  5,  2,  8, 12,  3,  7,  0,  4, 10,  1, 13, 11,  6,
-    4,  3,  2, 12,  9,  5, 15, 10, 11, 14,  1,  7,  6,  0,  8, 13},     //SBox 6
+    {{12,  1, 10, 15,  9,  2,  6,  8,  0, 13,  3,  4, 14,  7,  5, 11},
+    {10, 15,  4,  2,  7, 12,  9,  5,  6,  1, 13, 14,  0, 11,  3,  8},
+    {9, 14, 15,  5,  2,  8, 12,  3,  7,  0,  4, 10,  1, 13, 11,  6},
+    {4,  3,  2, 12,  9,  5, 15, 10, 11, 14,  1,  7,  6,  0,  8, 13}},     //SBox 6
 
-    {4, 11,  2, 14, 15,  0,  8, 13,  3, 12,  9,  7,  5, 10,  6,  1,
-    13,  0, 11,  7,  4,  9,  1, 10, 14,  3,  5, 12,  2, 15,  8,  6,
-    1,  4, 11, 13, 12,  3,  7, 14, 10, 15,  6,  8,  0,  5,  9,  2,
-    6, 11, 13,  8,  1,  4, 10,  7,  9,  5,  0, 15, 14,  2,  3, 12},     //SBox 7
+    {{4, 11,  2, 14, 15,  0,  8, 13,  3, 12,  9,  7,  5, 10,  6,  1},
+    {13,  0, 11,  7,  4,  9,  1, 10, 14,  3,  5, 12,  2, 15,  8,  6},
+    {1,  4, 11, 13, 12,  3,  7, 14, 10, 15,  6,  8,  0,  5,  9,  2},
+    {6, 11, 13,  8,  1,  4, 10,  7,  9,  5,  0, 15, 14,  2,  3, 12}},     //SBox 7
 
-    {13,  2,  8,  4,  6, 15, 11,  1, 10,  9,  3, 14,  5,  0, 12,  7,
-    1, 15, 13,  8, 10,  3,  7,  4, 12,  5,  6, 11,  0, 14,  9,  2,
-    7, 11,  4,  1,  9, 12, 14,  2,  0,  6, 10, 13, 15,  3,  5,  8,
-    2,  1, 14,  7,  4, 10,  8, 13, 15, 12,  9,  0,  3,  5,  6, 11}      //SBox 8
+    {{13,  2,  8,  4,  6, 15, 11,  1, 10,  9,  3, 14,  5,  0, 12,  7},
+    {1, 15, 13,  8, 10,  3,  7,  4, 12,  5,  6, 11,  0, 14,  9,  2},
+    {7, 11,  4,  1,  9, 12, 14,  2,  0,  6, 10, 13, 15,  3,  5,  8},
+    {2,  1, 14,  7,  4, 10,  8, 13, 15, 12,  9,  0,  3,  5,  6, 11}}      //SBox 8
 
 
 };
@@ -148,17 +148,19 @@ static int KeyShiftTable[] = { 1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1 };
 
 
 int Swapper(){    // Swapping L Block and R Block
-    for(int i = 0;i<32;i++){
+    for(int i = 0; i<32; i++){
         RTempBlock[i] = RRoundBlock[i];
         RRoundBlock[i] = LRoundBlock[i];
         LRoundBlock[i] = RTempBlock[i];
     }
+    return 0;
 }
 
 int arrayXOR(int arrayA[], int arrayB[], int length){
     for (int i = 0; i<length; i++){
         arrayA[i] = (arrayA[i] ^ arrayB[i]);
     }
+    return 0;
 }
 
 int SBoxPermutation(int i){
@@ -182,6 +184,7 @@ int SBoxPermutation(int i){
     for (int x = i*4; x < (i+1)*4; x++){
         SBoxOutputBlock[x] = array[x%4];
     }
+    return 0;
     
 }
 
@@ -190,6 +193,7 @@ int SBoxSplit(){
     for(int i=0; i < 8; i++){
         SBoxPermutation(i);
     }
+    return 0;
 }
 
 // Expand the 32-bit RRound into 48-bits using ExpDBoxtable
@@ -197,6 +201,7 @@ int ExpansionDBox(){
     for(int i = 0; i < 48; i++){
         ExpDBoxOutputBlock[i] = RRoundBlock[ExpDBoxTable[i]-1];
     }
+    return 0;
 }
 
 // Straight permutation from SBoxOutputBlock using StrDBoxTable
@@ -204,6 +209,7 @@ int StraightDBox(){
     for(int i = 0; i < 32; i++){
         StrDBoxOutputBlock[i] = SBoxOutputBlock[StrDBoxTable[i]-1];
     }
+    return 0;
 }
 
 // Initial permutation of 64-bits
@@ -215,6 +221,7 @@ int initialPermutation(int input[], int block){
         RRoundBlock[j]=CipherBlocks[block][j+32];
         LRoundBlock[j]=CipherBlocks[block][j];
     }
+    return 0;
 }
 
 // Final permutation of 64-bits
@@ -222,10 +229,11 @@ int finalPermutation(int block){
     for(int i=0; i<64; i++){
         FPText[block][i] = oldFPText[block][FPTable[i]-1];
     }
+    return 0;
 }
 
 // Function calls in a round
-int roundFunction(int round){
+int roundFunction(int round, int block){
     ExpansionDBox();    // Expand R
     
     arrayXOR(ExpDBoxOutputBlock, RoundKeys[round], 48);     // Key XORing
@@ -238,13 +246,14 @@ int roundFunction(int round){
     if(round!=15){
         Swapper();
     }
+    return 0;
 }
 
 
 void des(int input[], int block){
     initialPermutation(input, block);
     for(int i=0; i<16; i++){
-        roundFunction(i);
+        roundFunction(i, block);
     }
     for(int j=0; j<32; j++){                    // Combine L and R to FPText
         oldFPText[block][j]=LRoundBlock[j];
@@ -279,6 +288,7 @@ int shiftLeft(int RoundKeyBlock[], int numOfShifts){
         }
         RoundKeyBlock[27] = temp;
     }
+    return 0;
 }
 
 
@@ -286,6 +296,7 @@ int KeyParityDrop(){
     for(int i = 0; i < 56; i++){
         Key56[i] = Key64[KeyParityDropTable[i]-1];
     }
+    return 0;
 }
 
 int KeySplit(){
@@ -293,6 +304,7 @@ int KeySplit(){
         KeyL[i] = Key56[i];
         KeyR[i] = Key56[i+28];
     }
+    return 0;
 }
 
 int KeyCompress(int round){
@@ -309,6 +321,7 @@ int KeyCompress(int round){
     for(int i=0; i<48; i++){
         RoundKeys[round][i] = newKey56[KeyCompressionTable[i]-1];
     }
+    return 0;
 }
 int KeyGen(){
     KeyParityDrop();        // Parity Drop
@@ -321,6 +334,7 @@ int KeyGen(){
         KeyCompress(i);
     }
     
+    return 0;
 }
 
 int *DectoBin(int dec){
@@ -335,14 +349,25 @@ int *DectoBin(int dec){
     return array;
 }
 
+int minInt(int a, int b){
+    if (a>b){
+        return b;
+    }
+    else {
+        return a;
+    }
+}
+
 void StringConvertToBinary(char input[]){
+
     if(strlen(input)>8 && strlen(input)<16){
         Blocks = 2;
     }
     else if(strlen(input)>16){
         Blocks = 3;
     }
-    for(int i=0; i<strlen(input); i++){
+    int maxLen = 20;
+    for(int i=0; i<minInt(maxLen,strlen(input)); i++){
         int *BinArray = DectoBin((int)input[i]); 
         for(int j=0; j<8; j++){
             CharBits[i*8 + j] = BinArray[j];
@@ -354,16 +379,21 @@ void StringConvertToBinary(char input[]){
 int main(){
     char input[21];
     char key[65];
-    for(int a=0; a<160; a++){   // Initialize CharBits to all be 0
-        if(a<160){
-            CharBits[a] = 0;
-        }
+    for(int a=0; a<192; a++){   // Initialize CharBits to all be 0
+        CharBits[a] = 0;
+        finalCharBits[a] = 0;
     }
 
-    fgets(input, sizeof(input), stdin);     // read Plaintext  
-    input[strcspn(input, "\n")] = 0;
-    fgets(key, sizeof(key), stdin);         // read Key
-    input[strcspn(input, "\n")] = 0;
+    scanf("%[^\n]", input);
+    getchar();                      // get newline
+    scanf("%[^\n]", key);
+    getchar();                      // get newline
+
+    if(strlen(input) > 20)
+    {
+        input[20] = '\0';
+    }
+   
     if(KeyCheck(key) == 0){                 // Check Key validity
         KeyGen();
 
@@ -391,5 +421,14 @@ int main(){
             printf("%d",finalCharBits[z]);
         }
     }
-    printf("\n");
+
+    for(int l=0; l<16; l++){
+        printf("\nRound %d\n",l);
+        for(int m=0; m<48; m++){
+            printf("%d",RoundKeys[l][m]);
+        }
+        printf("\n");
+    }
+
+    return 0;
 }
