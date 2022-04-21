@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <string.h>
 
-int CharBits[192];
+int CharBits[256];
 int Blocks = 1;
-int oldCipherBlocks[3][64];
-int CipherBlocks[3][64];
-int oldFPText[3][64];
-int FPText[3][64];
+int oldCipherBlocks[4][64];
+int CipherBlocks[4][64];
+int oldFPText[4][64];
+int FPText[4][64];
 int Key64[64];      // After checking Validity of String Key
 int Key56[56];      // after removign Parity bit
 // Round Key gen
@@ -25,7 +25,7 @@ int ExpDBoxOutputBlock[48];  // Output of Expansion DBox for input of Sboxes
 int SBoxOutputBlock[32];     // Output of sbox for input of Straight Dbox
 int StrDBoxOutputBlock[32];    // Output of Straight Dbox for input for XOring with LRoundBlock
 int RTempBlock[32]; // For Xoring
-int finalCharBits[192];
+int finalCharBits[256];
 
 static int IPTable[64] =      // Initial Permutation Table
 {   
@@ -363,11 +363,13 @@ void StringConvertToBinary(char input[]){
     if(strlen(input)>8 && strlen(input)<16){
         Blocks = 2;
     }
+    else if(strlen(input)>24){
+        Blocks = 4;
+    }
     else if(strlen(input)>16){
         Blocks = 3;
     }
-    int maxLen = 20;
-    for(int i=0; i<minInt(maxLen,strlen(input)); i++){
+    for(int i=0; i<strlen(input); i++){
         int *BinArray = DectoBin((int)input[i]); 
         for(int j=0; j<8; j++){
             CharBits[i*8 + j] = BinArray[j];
@@ -377,9 +379,9 @@ void StringConvertToBinary(char input[]){
 }
 
 int main(){
-    char input[21];
+    char input[33];
     char key[65];
-    for(int a=0; a<192; a++){   // Initialize CharBits to all be 0
+    for(int a=0; a<256; a++){   // Initialize CharBits to all be 0
         CharBits[a] = 0;
         finalCharBits[a] = 0;
     }
@@ -389,9 +391,9 @@ int main(){
     scanf("%[^\n]", key);
     getchar();                      // get newline
 
-    if(strlen(input) > 20)
+    if(strlen(input) > 32)
     {
-        input[20] = '\0';
+        input[32] = '\0';
     }
    
     if(KeyCheck(key) == 0){                 // Check Key validity
@@ -404,6 +406,7 @@ int main(){
             oldCipherBlocks[0][i] = CharBits[i];
             oldCipherBlocks[1][i] = CharBits[i+64];
             oldCipherBlocks[2][i] = CharBits[i+128];
+            oldCipherBlocks[3][i] = CharBits[i+192];
         }
         for(int j=0; j<Blocks; j++){
             des(oldCipherBlocks[j],j);
@@ -416,18 +419,10 @@ int main(){
         printf("invalid key");
         return 0;
     }
-    for(int z=0; z<192; z++){
+    for(int z=0; z<256; z++){
         if(z<(Blocks)*64){
             printf("%d",finalCharBits[z]);
         }
-    }
-
-    for(int l=0; l<16; l++){
-        printf("\nRound %d\n",l);
-        for(int m=0; m<48; m++){
-            printf("%d",RoundKeys[l][m]);
-        }
-        printf("\n");
     }
 
     return 0;
